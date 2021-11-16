@@ -4,3 +4,5 @@ Requires MuPDF, available on macOS via homebrew:
 
 Adapted the MuPDF sample: https://github.com/pymupdf/PyMuPDF-Utilities/blob/master/examples/all-my-pics-embedded.py
 
+Uses [poetry](https://python-poetry.org) for dependency management.
+
