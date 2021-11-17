@@ -1,4 +1,4 @@
-import os, sys, fitz
+import os, random, sys, fitz
 
 imgdir = sys.argv[1]
 
@@ -7,7 +7,7 @@ doc = fitz.open()
 width, height = fitz.paper_size("letter")
 imglist = os.listdir(imgdir)
 imglist = imglist + imglist + imglist
-imglist.sort()
+random.shuffle(imglist)
 imgcount = len(imglist)
 
 page = doc.new_page(width=width, height=height)
@@ -49,4 +49,4 @@ for i, f in enumerate(imglist):
     # for a new page call
     #page = doc.new_page(width = width, height = height)
 
-doc.save("all-my-pics-embedded.pdf")
+doc.save("cards.pdf")
