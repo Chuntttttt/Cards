@@ -1,5 +1,4 @@
 import os, sys, fitz
-print(fitz.__doc__)
 
 imgdir = sys.argv[1]
 
@@ -12,6 +11,7 @@ imglist.sort()
 imgcount = len(imglist)
 
 page = doc.new_page(width=width, height=height)
+# try to use this template as the base page, dunno why it isn't working
 # pdf_path = os.path.join(imgdir, 'template.pdf')
 # doc = fitz.open()
 
@@ -37,15 +37,16 @@ for i, f in enumerate(imglist):
     img = fitz.open(path)
     rect = (x0, y0, x1, y1)
     print(f'rect: {rect}')
-    pdfbytes = img.convert_to_pdf()  # make a PDF stream
-    img.close()  # no longer needed
-    imgPDF = fitz.open("pdf", pdfbytes)  # open stream as PDF
-    # for a new page call
-    #page = doc.new_page(width = rect.width, height = rect.height)
-    page.show_pdf_page(rect, imgPDF, 0)  # image fills the page
+    pdfbytes = img.convert_to_pdf()
+    img.close()
+    imgPDF = fitz.open("pdf", pdfbytes)
+    page.show_pdf_page(rect, imgPDF, 0)
     count = count + 1
     if count == 3 or count == 6:
         row = row + 1
     column = count % 3
+
+    # for a new page call
+    #page = doc.new_page(width = width, height = height)
 
 doc.save("all-my-pics-embedded.pdf")
