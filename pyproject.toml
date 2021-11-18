@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "cards"
+version = "0.1.0"
+description = ""
+authors = ["James Power <jep@lepoer.us>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+PyMuPDF = "^1.19.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
