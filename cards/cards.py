@@ -49,13 +49,16 @@ def main():
 
     width, height = fitz.paper_size("letter")
     imglist = os.listdir(imgdir)
-    imglist = imglist + imglist
+    imglist = imglist + imglist + imglist
+    imglist = imglist + imglist + imglist
 
+    columns = 3
+    rows = 3
     page = doc.new_page(width=width, height=height)
     horizontal_padding = width * (1 / 17)
     vertical_padding = height * (1 / 44)
-    card_width = (width - (horizontal_padding * 2)) / 3
-    card_height = (height - (vertical_padding * 2)) / 3
+    card_width = (width - (horizontal_padding * 2)) / columns
+    card_height = (height - (vertical_padding * 2)) / rows
     count = 0
     row = 0
     column = 0
@@ -75,9 +78,9 @@ def main():
         imgPDF = fitz.open("pdf", pdfbytes)
         page.show_pdf_page(rect, imgPDF, 0)
         count = count + 1
-        if count == 3 or count == 6:
+        if count % columns == 0:
             row = row + 1
-        column = count % 3
+        column = count % columns
 
         shape = page.new_shape()
         draw_guides(shape, x0, y0, x1, y1, width, height)
