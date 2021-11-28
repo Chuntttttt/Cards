@@ -60,7 +60,8 @@ def __add_images(images_path: str, side_size: int):
 def __create_pdf(cards_path: str, side_size: int = 3):
     doc = fitz.open()
     width, height = fitz.paper_size('letter')
-    imglist = os.listdir(cards_path + '/front')
+    # imglist = os.listdir(cards_path + '/front')
+    front_cards = __images_from_path(cards_path + '/front')
     columns = side_size
     rows = side_size
     page = doc.new_page(width=width, height=height)
@@ -71,16 +72,13 @@ def __create_pdf(cards_path: str, side_size: int = 3):
     count = 0
     row = 0
     column = 0
-    for i, f in enumerate(imglist):
-        path = os.path.join(cards_path + '/front', f)
-        if not os.path.isfile(path) or 'DS_Store' in path or 'pdf' in path:
-            continue
+    for image_path in front_cards:
         x0 = column * card_width + horizontal_padding
         x1 = x0 + card_width
         y0 = row * card_height + vertical_padding
         y1 = y0 + card_height
 
-        img = fitz.open(path)
+        img = fitz.open(image_path)
         rect = Rect(x0, y0, x1, y1)
         pdfbytes = img.convert_to_pdf()
         img.close()
