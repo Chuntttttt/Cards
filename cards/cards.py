@@ -71,7 +71,9 @@ class CardWriter:
         return sorted(images)
 
     def __add_images(self, images: List[str]):
-        print(f'incoming images: {images}')
+        groupedRows = grouper(images, self.side_size)
+        groupedPages = grouper(groupedRows, self.side_size)
+        return groupedPages
 
     def create_pdf(self, cards_path: str):
         self.doc = fitz.open()
