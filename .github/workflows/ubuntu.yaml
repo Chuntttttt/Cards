@@ -24,10 +24,12 @@ jobs:
         virtualenvs-create: true
         virtualenvs-in-project: true
     - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      #if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root
-    - name: Generate artifact
-      run: pyinstaller --onefile cards/cards.py
+    - name: Package Application
+      run: |
+        source .venv/bin/activate
+        pyinstaller --onefile cards/cards.py
     - uses: actions/upload-artifact@v2
       with:
         name: cards-linux
