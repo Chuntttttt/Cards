@@ -12,6 +12,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.9'
+    - run: pip install pyinstaller # already installed by poetry but i haven't figured out how to make windows use it
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
@@ -21,9 +22,8 @@ jobs:
       run: poetry install --no-interaction --no-root
     - name: Package Application
       run: |
-        .venv/bin/activate.bat
         pyinstaller --onefile cards/cards.py
     - uses: actions/upload-artifact@v2
       with:
         name: cards-windows
-        path: dist/cards
+        path: dist/cards.exe
