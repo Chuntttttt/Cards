@@ -6,7 +6,7 @@ from fitz import Point
 from fitz import Rect
 
 
-def draw_guides(
+def __draw_guides(
     shape, x0: int, y0: float, x1: float, y1: float, width: float, height: float
 ):
     # This all could've been done more elegantly I am certain.
@@ -89,7 +89,7 @@ def __create_pdf(cards_path: str, side_size: int = 3):
         column = count % columns
 
         shape = page.new_shape()
-        draw_guides(shape, x0, y0, x1, y1, width, height)
+        __draw_guides(shape, x0, y0, x1, y1, width, height)
 
     # for a new page call
     # page = doc.new_page(width = width, height = height)
