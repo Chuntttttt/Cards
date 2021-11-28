@@ -48,10 +48,12 @@ def main():
     doc = fitz.open()
 
     width, height = fitz.paper_size("letter")
-    imglist = os.listdir(imgdir)
+    imglist = os.listdir(imgdir + "/front")
     imglist = imglist + imglist + imglist
     imglist = imglist + imglist + imglist
-
+    imglist = imglist + imglist + imglist
+    imglist = imglist + imglist + imglist
+    imglist = imglist + imglist + imglist
     columns = 3
     rows = 3
     page = doc.new_page(width=width, height=height)
