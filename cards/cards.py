@@ -12,7 +12,7 @@ def draw_guides(
     shape, x0: int, y0: float, x1: float, y1: float, width: float, height: float
 ):
     # This all could've been done more elegantly I am certain.
-    logging.debug(f"points ({x0}, {y0})\t({x1}, {y1})")
+    logging.debug(f'points ({x0}, {y0})\t({x1}, {y1})')
     size = 20
     shape.draw_line(Point(x0, y0 - size), Point(x0, y0 + size))
     shape.draw_line(Point(x0 - size, y0), Point(x0 + size, y0))
@@ -41,19 +41,14 @@ def draw_guides(
 
 
 def main():
-    logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
     # imgdir = sys.argv[1]
-    imgdir = "static/cards"
+    imgdir = 'static/cards'
     doc = fitz.open()
 
-    width, height = fitz.paper_size("letter")
-    imglist = os.listdir(imgdir + "/front")
-    imglist = imglist + imglist + imglist
-    imglist = imglist + imglist + imglist
-    imglist = imglist + imglist + imglist
-    imglist = imglist + imglist + imglist
-    imglist = imglist + imglist + imglist
+    width, height = fitz.paper_size('letter')
+    imglist = os.listdir(imgdir + '/front')
     columns = 3
     rows = 3
     page = doc.new_page(width=width, height=height)
@@ -66,7 +61,7 @@ def main():
     column = 0
     for i, f in enumerate(imglist):
         path = os.path.join(imgdir, f)
-        if not os.path.isfile(path) or "DS_Store" in path or "pdf" in path:
+        if not os.path.isfile(path) or 'DS_Store' in path or 'pdf' in path:
             continue
         x0 = column * card_width + horizontal_padding
         x1 = x0 + card_width
@@ -77,7 +72,7 @@ def main():
         rect = Rect(x0, y0, x1, y1)
         pdfbytes = img.convert_to_pdf()
         img.close()
-        imgPDF = fitz.open("pdf", pdfbytes)
+        imgPDF = fitz.open('pdf', pdfbytes)
         page.show_pdf_page(rect, imgPDF, 0)
         count = count + 1
         if count % columns == 0:
@@ -89,9 +84,9 @@ def main():
 
     # for a new page call
     # page = doc.new_page(width = width, height = height)
-    doc.save("cards.pdf")
+    doc.save('cards.pdf')
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
