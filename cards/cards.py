@@ -38,16 +38,12 @@ def draw_guides(
     shape.commit()
 
 
-def main():
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
-    imgdir = 'static/cards'
+def create_pdf(cards_path: str, side_size: int = 3):
     doc = fitz.open()
-
     width, height = fitz.paper_size('letter')
-    imglist = os.listdir(imgdir + '/front')
-    columns = 3
-    rows = 3
+    imglist = os.listdir(cards_path + '/front')
+    columns = side_size
+    rows = side_size
     page = doc.new_page(width=width, height=height)
     horizontal_padding = width * (1 / 17)
     vertical_padding = height * (1 / 44)
@@ -57,7 +53,7 @@ def main():
     row = 0
     column = 0
     for i, f in enumerate(imglist):
-        path = os.path.join(imgdir, f)
+        path = os.path.join(cards_path, f)
         if not os.path.isfile(path) or 'DS_Store' in path or 'pdf' in path:
             continue
         x0 = column * card_width + horizontal_padding
@@ -82,6 +78,11 @@ def main():
     # for a new page call
     # page = doc.new_page(width = width, height = height)
     doc.save('cards.pdf')
+
+
+def main():
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+    create_pdf('static/cards')
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
