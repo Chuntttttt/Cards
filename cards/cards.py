@@ -42,7 +42,6 @@ def __images_from_path(images_path) -> List[str]:
     """
     looks for png, jpg, jpeg, extensions and ignores other files in the given path
     """
-    print(f'images_path: {images_path}')
     files = os.listdir(images_path)
     images = []
     extensions = ['png', 'jpg', 'jpeg']
@@ -60,8 +59,8 @@ def __add_images(images: List[str], side_size: int):
 def __create_pdf(cards_path: str, side_size: int = 3):
     doc = fitz.open()
     width, height = fitz.paper_size('letter')
-    # imglist = os.listdir(cards_path + '/front')
     front_cards = __images_from_path(cards_path + '/front')
+    # back_cards = __images_from_path(cards_path + '/back')
     columns = side_size
     rows = side_size
     page = doc.new_page(width=width, height=height)
