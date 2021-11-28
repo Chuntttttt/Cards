@@ -1,4 +1,4 @@
-name: Package Application with Pyinstaller
+name: macOS build
 
 on: [push, pull_request]
 
