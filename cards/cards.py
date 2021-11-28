@@ -38,7 +38,26 @@ def draw_guides(
     shape.commit()
 
 
-def create_pdf(cards_path: str, side_size: int = 3):
+def __images_from_path(images_path):
+    """
+    looks for png, jpg, jpeg, extensions and ignores other files in the given path
+    """
+    print(f'images_path: {images_path}')
+    files = os.listdir(images_path)
+    images = []
+    extensions = ['png', 'jpg', 'jpeg']
+    for file in files:
+        path = os.path.join(images_path, file)
+        if os.path.isfile(path) and any(extension in file for extension in extensions):
+            images.append(path)
+    return sorted(images)
+
+
+def __add_images(images_path: str, side_size: int):
+    pass
+
+
+def __create_pdf(cards_path: str, side_size: int = 3):
     doc = fitz.open()
     width, height = fitz.paper_size('letter')
     imglist = os.listdir(cards_path + '/front')
@@ -53,7 +72,7 @@ def create_pdf(cards_path: str, side_size: int = 3):
     row = 0
     column = 0
     for i, f in enumerate(imglist):
-        path = os.path.join(cards_path, f)
+        path = os.path.join(cards_path + '/front', f)
         if not os.path.isfile(path) or 'DS_Store' in path or 'pdf' in path:
             continue
         x0 = column * card_width + horizontal_padding
@@ -82,7 +101,7 @@ def create_pdf(cards_path: str, side_size: int = 3):
 
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-    create_pdf('static/cards')
+    __create_pdf('static/cards')
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
