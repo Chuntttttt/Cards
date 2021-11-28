@@ -1,10 +1,10 @@
-name: Ubuntu build
+name: Windows build
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - name: Check out repo
       uses: actions/checkout@v2
@@ -21,9 +21,9 @@ jobs:
       run: poetry install --no-interaction --no-root
     - name: Package Application
       run: |
-        source .venv/bin/activate
+        .venv/bin/activate.bat
         pyinstaller --onefile cards/cards.py
     - uses: actions/upload-artifact@v2
       with:
-        name: cards-ubuntu
+        name: cards-windows
         path: dist/cards

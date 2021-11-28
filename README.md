@@ -1,6 +1,6 @@
 # Cards
 
-[![macOS](https://github.com/Chuntttttt/Cards/actions/workflows/macos/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yml) [![Ubuntu](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![macOS build](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml) [![Windows build](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml) [![Ubuntu](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Requirements
 
