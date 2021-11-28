@@ -25,5 +25,5 @@ jobs:
         pyinstaller --onefile cards/cards.py
     - uses: actions/upload-artifact@v2
       with:
-        name: cards-linux
+        name: cards-macOS
         path: dist/cards
