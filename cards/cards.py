@@ -1,6 +1,6 @@
 import logging
 import os
-
+from typing import List
 import fitz
 from fitz import Point
 from fitz import Rect
@@ -38,7 +38,7 @@ def draw_guides(
     shape.commit()
 
 
-def __images_from_path(images_path):
+def __images_from_path(images_path) -> List[str]:
     """
     looks for png, jpg, jpeg, extensions and ignores other files in the given path
     """
@@ -53,7 +53,7 @@ def __images_from_path(images_path):
     return sorted(images)
 
 
-def __add_images(images_path: str, side_size: int):
+def __add_images(images: List[str], side_size: int):
     pass
 
 
