@@ -4,12 +4,20 @@ from typing import List
 import fitz
 from fitz import Point
 from fitz import Rect
+from itertools import zip_longest
+
+
+# https://stackoverflow.com/a/434411/104527
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 class CardWriter:
-    def __init__(self, output: str = 'cards.pdf'):
+    def __init__(self, output: str = 'cards.pdf', side_size: int = 3):
         self.output = output
         self.width, self.height = fitz.paper_size('letter')
+        self.side_size = side_size
 
     def __draw_guides(
         self,
@@ -62,16 +70,16 @@ class CardWriter:
                 images.append(path)
         return sorted(images)
 
-    def __add_images(self, images: List[str], side_size: int):
-        pass
+    def __add_images(self, images: List[str]):
+        print(f'incoming images: {images}')
 
-    def create_pdf(self, cards_path: str, side_size: int = 3):
+    def create_pdf(self, cards_path: str):
         self.doc = fitz.open()
         front_cards = self.__images_from_path(cards_path + '/front')
+        self.__add_images(front_cards)
         # back_cards = __images_from_path(cards_path + '/back')
-        columns = side_size
-        rows = side_size
-        page = self.doc.new_page(width=self.width, height=self.height)
+        columns = self.side_size
+        rows = self.side_size
         horizontal_padding = self.width * (1 / 17)
         vertical_padding = self.height * (1 / 44)
         card_width = (self.width - (horizontal_padding * 2)) / columns
@@ -79,6 +87,7 @@ class CardWriter:
         count = 0
         row = 0
         column = 0
+        page = self.doc.new_page(width=self.width, height=self.height)
         for image_path in front_cards:
             x0 = column * card_width + horizontal_padding
             x1 = x0 + card_width
