@@ -1,8 +1,6 @@
 import logging
 import os
 
-# import sys
-
 import fitz
 from fitz import Point
 from fitz import Rect
@@ -43,7 +41,6 @@ def draw_guides(
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
-    # imgdir = sys.argv[1]
     imgdir = 'static/cards'
     doc = fitz.open()
 
