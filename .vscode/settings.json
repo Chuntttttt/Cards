@@ -1,5 +1,8 @@
 {
     "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--skip-string-normalization"
+    ],
     "python.linting.flake8Args": [
         "--max-line-length=88"
     ],

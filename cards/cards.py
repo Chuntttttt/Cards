@@ -1,90 +1,119 @@
 import logging
 import os
-
-# import sys
-
+from typing import List
 import fitz
 from fitz import Point
 from fitz import Rect
+from itertools import zip_longest
 
 
-def draw_guides(
-    shape, x0: int, y0: float, x1: float, y1: float, width: float, height: float
-):
-    # This all could've been done more elegantly I am certain.
-    logging.debug(f'points ({x0}, {y0})\t({x1}, {y1})')
-    size = 20
-    shape.draw_line(Point(x0, y0 - size), Point(x0, y0 + size))
-    shape.draw_line(Point(x0 - size, y0), Point(x0 + size, y0))
-    shape.draw_line(Point(x1, y1 - size), Point(x1, y1 + size))
-    shape.draw_line(Point(x1 - size, y1), Point(x1 + size, y1))
-    shape.draw_line(Point(x0, y1 - size), Point(x0, y1 + size))
-    shape.draw_line(Point(x0 - size, y1), Point(x0 + size, y1))
-    shape.draw_line(Point(x1, y0 - size), Point(x1, y0 + size))
-    shape.draw_line(Point(x1 - size, y0), Point(x1 + size, y0))
-    # lol at these hard coded values
-    if y0 < 20:
-        shape.draw_line(Point(x0, 0), Point(x0, y0))
-        shape.draw_line(Point(x1, 0), Point(x1, y0))
-    if y0 > 500:
-        shape.draw_line(Point(x0, height), Point(x0, y1))
-        shape.draw_line(Point(x1, height), Point(x1, y1))
-    if x0 < 40:
-        shape.draw_line(Point(0, y0), Point(x0, y0))
-        shape.draw_line(Point(0, y1), Point(x0, y1))
-    if x0 > 390:
-        shape.draw_line(Point(x1, y0), Point(width, y0))
-        shape.draw_line(Point(x1, y1), Point(width, y1))
+# https://stackoverflow.com/a/434411/104527
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
-    shape.finish()
-    shape.commit()
+
+class CardWriter:
+    def __init__(self, output: str = 'cards.pdf', side_size: int = 3):
+        self.output = output
+        self.width, self.height = fitz.paper_size('letter')
+        self.side_size = side_size
+        self.horizontal_padding = self.width * (1 / 17)
+        self.vertical_padding = self.height * (1 / 44)
+        self.card_width = (self.width - (self.horizontal_padding * 2)) / side_size
+        self.card_height = (self.height - (self.vertical_padding * 2)) / side_size
+
+    def __draw_guides(
+        self,
+        shape,
+        x0: int,
+        y0: float,
+        x1: float,
+        y1: float,
+    ):
+        # This all could've been done more elegantly I am certain.
+        logging.debug(f'points ({x0}, {y0})\t({x1}, {y1})')
+        size = 20
+        shape.draw_line(Point(x0, y0 - size), Point(x0, y0 + size))
+        shape.draw_line(Point(x0 - size, y0), Point(x0 + size, y0))
+        shape.draw_line(Point(x1, y1 - size), Point(x1, y1 + size))
+        shape.draw_line(Point(x1 - size, y1), Point(x1 + size, y1))
+        shape.draw_line(Point(x0, y1 - size), Point(x0, y1 + size))
+        shape.draw_line(Point(x0 - size, y1), Point(x0 + size, y1))
+        shape.draw_line(Point(x1, y0 - size), Point(x1, y0 + size))
+        shape.draw_line(Point(x1 - size, y0), Point(x1 + size, y0))
+        # lol at these hard coded values
+        if y0 < 20:
+            shape.draw_line(Point(x0, 0), Point(x0, y0))
+            shape.draw_line(Point(x1, 0), Point(x1, y0))
+        if y0 > 500:
+            shape.draw_line(Point(x0, self.height), Point(x0, y1))
+            shape.draw_line(Point(x1, self.height), Point(x1, y1))
+        if x0 < 40:
+            shape.draw_line(Point(0, y0), Point(x0, y0))
+            shape.draw_line(Point(0, y1), Point(x0, y1))
+        if x0 > 390:
+            shape.draw_line(Point(x1, y0), Point(self.width, y0))
+            shape.draw_line(Point(x1, y1), Point(self.width, y1))
+
+        shape.finish()
+        shape.commit()
+
+    def __images_from_path(self, images_path) -> List[str]:
+        """
+        looks for png, jpg, jpeg, extensions and ignores other files in the given path
+        """
+        files = os.listdir(images_path)
+        images = []
+        extensions = ['png', 'jpg', 'jpeg']
+        for file in files:
+            path = os.path.join(images_path, file)
+            if os.path.isfile(path) and any(
+                extension in file for extension in extensions
+            ):
+                images.append(path)
+        return self.__group_images(sorted(images))
+
+    def __group_images(self, images: List[str]) -> List[List[str]]:
+        groupedRows = grouper(images, self.side_size)
+        groupedPages = grouper(groupedRows, self.side_size)
+        return groupedPages
+
+    def __add_images(self, images: List[List[str]]):
+        pdf_page = self.doc.new_page(width=self.width, height=self.height)
+        print('\n'.join(map(str, images)))
+        for row_index, row in enumerate(images):
+            if row is not None:
+                for image_index, image in enumerate(row):
+                    if image is not None:
+                        x0 = image_index * self.card_width + self.horizontal_padding
+                        x1 = x0 + self.card_width
+                        y0 = row_index * self.card_height + self.vertical_padding
+                        y1 = y0 + self.card_height
+                        rect = Rect(x0, y0, x1, y1)
+                        img = fitz.open(image)
+                        pdfbytes = img.convert_to_pdf()
+                        img.close()
+                        imgPDF = fitz.open('pdf', pdfbytes)
+                        pdf_page.show_pdf_page(rect, imgPDF, 0)
+                        shape = pdf_page.new_shape()
+                        # Could tell draw guides where we are on the screen
+                        # instead of having the magic numbers in that function
+                        # determine where to draw the guides from the edges of
+                        # sheet. row_index & image_index should be enough here.
+                        self.__draw_guides(shape, x0, y0, x1, y1)
+
+    def create_pdf(self, cards_path: str):
+        self.doc = fitz.open()
+        front_cards = self.__images_from_path(cards_path + '/front')
+        for image_page in front_cards:
+            self.__add_images(image_page)
+        self.doc.save(self.output)
 
 
 def main():
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
-    # imgdir = sys.argv[1]
-    imgdir = 'static/cards'
-    doc = fitz.open()
-
-    width, height = fitz.paper_size('letter')
-    imglist = os.listdir(imgdir + '/front')
-    columns = 3
-    rows = 3
-    page = doc.new_page(width=width, height=height)
-    horizontal_padding = width * (1 / 17)
-    vertical_padding = height * (1 / 44)
-    card_width = (width - (horizontal_padding * 2)) / columns
-    card_height = (height - (vertical_padding * 2)) / rows
-    count = 0
-    row = 0
-    column = 0
-    for i, f in enumerate(imglist):
-        path = os.path.join(imgdir, f)
-        if not os.path.isfile(path) or 'DS_Store' in path or 'pdf' in path:
-            continue
-        x0 = column * card_width + horizontal_padding
-        x1 = x0 + card_width
-        y0 = row * card_height + vertical_padding
-        y1 = y0 + card_height
-
-        img = fitz.open(path)
-        rect = Rect(x0, y0, x1, y1)
-        pdfbytes = img.convert_to_pdf()
-        img.close()
-        imgPDF = fitz.open('pdf', pdfbytes)
-        page.show_pdf_page(rect, imgPDF, 0)
-        count = count + 1
-        if count % columns == 0:
-            row = row + 1
-        column = count % columns
-
-        shape = page.new_shape()
-        draw_guides(shape, x0, y0, x1, y1, width, height)
-
-    # for a new page call
-    # page = doc.new_page(width = width, height = height)
-    doc.save('cards.pdf')
+    CardWriter().create_pdf('static/cards')
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
