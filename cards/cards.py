@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 from typing import List
@@ -14,7 +15,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class CardWriter:
-    def __init__(self, output: str = 'cards.pdf', side_size: int = 3):
+    def __init__(self, cards_path: str, output: str = 'cards.pdf', side_size: int = 3):
         self.output = output
         self.width, self.height = fitz.paper_size('letter')
         self.side_size = side_size
@@ -22,6 +23,7 @@ class CardWriter:
         self.vertical_padding = self.height * (1 / 44)
         self.card_width = (self.width - (self.horizontal_padding * 2)) / side_size
         self.card_height = (self.height - (self.vertical_padding * 2)) / side_size
+        self.cards_path = cards_path
 
     def __draw_guides(
         self,
@@ -102,17 +104,28 @@ class CardWriter:
                         # sheet. row_index & image_index should be enough here.
                         self.__draw_guides(shape, x0, y0, x1, y1)
 
-    def create_pdf(self, cards_path: str):
+    def create_pdf(self):
         self.doc = fitz.open()
-        front_cards = self.__images_from_path(cards_path + '/front')
+        front_cards = self.__images_from_path(self.cards_path + '/front')
         for image_page in front_cards:
             self.__add_images(image_page)
         self.doc.save(self.output)
 
 
 def main():
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-    CardWriter().create_pdf('static/cards')
+
+    parser = argparse.ArgumentParser(
+        description='Turn directories of images into printable pdfs of card sheets.'
+    )
+    parser.add_argument(
+        '--verbose', action='store_true', help='log actions taken at each step'
+    )
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+    # 'static/cards'
+    CardWriter().create_pdf()
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
