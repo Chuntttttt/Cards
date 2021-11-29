@@ -81,7 +81,6 @@ class CardWriter:
 
     def __add_images(self, images: List[List[str]]):
         pdf_page = self.doc.new_page(width=self.width, height=self.height)
-        print('\n'.join(map(str, images)))
         for row_index, row in enumerate(images):
             if row is not None:
                 for image_index, image in enumerate(row):
