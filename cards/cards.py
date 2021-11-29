@@ -18,6 +18,10 @@ class CardWriter:
         self.output = output
         self.width, self.height = fitz.paper_size('letter')
         self.side_size = side_size
+        self.horizontal_padding = self.width * (1 / 17)
+        self.vertical_padding = self.height * (1 / 44)
+        self.card_width = (self.width - (self.horizontal_padding * 2)) / side_size
+        self.card_height = (self.height - (self.vertical_padding * 2)) / side_size
 
     def __draw_guides(
         self,
@@ -68,50 +72,42 @@ class CardWriter:
                 extension in file for extension in extensions
             ):
                 images.append(path)
-        return sorted(images)
+        return self.__group_images(sorted(images))
 
-    def __add_images(self, images: List[str]):
+    def __group_images(self, images: List[str]) -> List[List[str]]:
         groupedRows = grouper(images, self.side_size)
         groupedPages = grouper(groupedRows, self.side_size)
         return groupedPages
 
+    def __add_images(self, images: List[List[str]]):
+        pdf_page = self.doc.new_page(width=self.width, height=self.height)
+        print('\n'.join(map(str, images)))
+        for row_index, row in enumerate(images):
+            if row is not None:
+                for image_index, image in enumerate(row):
+                    if image is not None:
+                        x0 = image_index * self.card_width + self.horizontal_padding
+                        x1 = x0 + self.card_width
+                        y0 = row_index * self.card_height + self.vertical_padding
+                        y1 = y0 + self.card_height
+                        rect = Rect(x0, y0, x1, y1)
+                        img = fitz.open(image)
+                        pdfbytes = img.convert_to_pdf()
+                        img.close()
+                        imgPDF = fitz.open('pdf', pdfbytes)
+                        pdf_page.show_pdf_page(rect, imgPDF, 0)
+                        shape = pdf_page.new_shape()
+                        # Could tell draw guides where we are on the screen
+                        # instead of having the magic numbers in that function
+                        # determine where to draw the guides from the edges of
+                        # sheet. row_index & image_index should be enough here.
+                        self.__draw_guides(shape, x0, y0, x1, y1)
+
     def create_pdf(self, cards_path: str):
         self.doc = fitz.open()
         front_cards = self.__images_from_path(cards_path + '/front')
-        self.__add_images(front_cards)
-        # back_cards = __images_from_path(cards_path + '/back')
-        columns = self.side_size
-        rows = self.side_size
-        horizontal_padding = self.width * (1 / 17)
-        vertical_padding = self.height * (1 / 44)
-        card_width = (self.width - (horizontal_padding * 2)) / columns
-        card_height = (self.height - (vertical_padding * 2)) / rows
-        count = 0
-        row = 0
-        column = 0
-        page = self.doc.new_page(width=self.width, height=self.height)
-        for image_path in front_cards:
-            x0 = column * card_width + horizontal_padding
-            x1 = x0 + card_width
-            y0 = row * card_height + vertical_padding
-            y1 = y0 + card_height
-
-            img = fitz.open(image_path)
-            rect = Rect(x0, y0, x1, y1)
-            pdfbytes = img.convert_to_pdf()
-            img.close()
-            imgPDF = fitz.open('pdf', pdfbytes)
-            page.show_pdf_page(rect, imgPDF, 0)
-            count = count + 1
-            if count % columns == 0:
-                row = row + 1
-            column = count % columns
-
-            shape = page.new_shape()
-            self.__draw_guides(shape, x0, y0, x1, y1)
-
-        # for a new page call
-        # page = doc.new_page(width = width, height = height)
+        for image_page in front_cards:
+            self.__add_images(image_page)
         self.doc.save(self.output)
 
 
