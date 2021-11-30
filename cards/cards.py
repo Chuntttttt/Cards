@@ -78,7 +78,7 @@ class CardWriter:
                 extension in file for extension in extensions
             ):
                 images.append(path)
-        return self.__group_images(sorted(images))
+        return sorted(images)
 
     def __add_images(self, images: List[List[str]]):
         pdf_page = self.doc.new_page(width=self.width, height=self.height)
@@ -122,8 +122,14 @@ class CardWriter:
     def create_pdf(self):
         self.doc = fitz.open()
         front_cards = self.__images_from_path(self.cards_path + '/front')
-        back_cards = self.__align_back_cards(self.__images_from_path(self.cards_path + '/back'))
-        for image_page in front_cards:
+        back_cards = self.__images_from_path(self.cards_path + '/back')
+        difference = len(front_cards) - len(back_cards)
+        if difference > 0 and len(back_cards) > 0:
+            back_cards.extend([back_cards[-1] for _ in range(difference)])
+        front_cards = self.__group_images(front_cards)
+        back_cards = self.__align_back_cards(self.__group_images(back_cards))
+        combined = [val for pair in zip(front_cards, back_cards) for val in pair]
+        for image_page in combined:
             self.__add_images(image_page)
         self.doc.save(self.output)
 
