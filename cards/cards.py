@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 from typing import List
@@ -14,7 +15,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class CardWriter:
-    def __init__(self, output: str = 'cards.pdf', side_size: int = 3):
+    def __init__(self, cards_path: str, output: str, side_size: int):
         self.output = output
         self.width, self.height = fitz.paper_size('letter')
         self.side_size = side_size
@@ -22,6 +23,7 @@ class CardWriter:
         self.vertical_padding = self.height * (1 / 44)
         self.card_width = (self.width - (self.horizontal_padding * 2)) / side_size
         self.card_height = (self.height - (self.vertical_padding * 2)) / side_size
+        self.cards_path = cards_path
 
     def __draw_guides(
         self,
@@ -55,11 +57,15 @@ class CardWriter:
         if x0 > 390:
             shape.draw_line(Point(x1, y0), Point(self.width, y0))
             shape.draw_line(Point(x1, y1), Point(self.width, y1))
-
         shape.finish()
         shape.commit()
 
-    def __images_from_path(self, images_path) -> List[str]:
+    def __group_images(self, images: List[str]):
+        groupedRows = grouper(images, self.side_size)
+        groupedPages = grouper(groupedRows, self.side_size)
+        return groupedPages
+
+    def __images_from_path(self, images_path):
         """
         looks for png, jpg, jpeg, extensions and ignores other files in the given path
         """
@@ -72,12 +78,7 @@ class CardWriter:
                 extension in file for extension in extensions
             ):
                 images.append(path)
-        return self.__group_images(sorted(images))
-
-    def __group_images(self, images: List[str]) -> List[List[str]]:
-        groupedRows = grouper(images, self.side_size)
-        groupedPages = grouper(groupedRows, self.side_size)
-        return groupedPages
+        return sorted(images)
 
     def __add_images(self, images: List[List[str]]):
         pdf_page = self.doc.new_page(width=self.width, height=self.height)
@@ -102,17 +103,56 @@ class CardWriter:
                         # sheet. row_index & image_index should be enough here.
                         self.__draw_guides(shape, x0, y0, x1, y1)
 
-    def create_pdf(self, cards_path: str):
+    def __align_back_cards(self, back_pages):
+        cards = []
+        for page in back_pages:
+            if page is None:
+                cards.append(page)
+                continue
+            page_cards = []
+            cards.append(page_cards)
+            for row in page:
+                if row is None:
+                    page_cards.append(row)
+                    continue
+                page_cards.append(reversed(list(row)))
+        return cards
+
+
+    def create_pdf(self):
         self.doc = fitz.open()
-        front_cards = self.__images_from_path(cards_path + '/front')
-        for image_page in front_cards:
+        front_cards = self.__images_from_path(self.cards_path + '/front')
+        back_cards = self.__images_from_path(self.cards_path + '/back')
+        difference = len(front_cards) - len(back_cards)
+        if difference > 0 and len(back_cards) > 0:
+            back_cards.extend([back_cards[-1] for _ in range(difference)])
+        front_cards = self.__group_images(front_cards)
+        back_cards = self.__align_back_cards(self.__group_images(back_cards))
+        combined = [val for pair in zip(front_cards, back_cards) for val in pair]
+        for image_page in combined:
             self.__add_images(image_page)
         self.doc.save(self.output)
 
 
 def main():
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-    CardWriter().create_pdf('static/cards')
+    parser = argparse.ArgumentParser(
+        description='Turn directories of images into printable pdfs of card sheets. Cards should fit the aspect ratio '
+                    'of 2.5x3.5 '
+    )
+    parser.add_argument('-c', '--cards-path', type=str,
+                        help='Path to the folder containing the card images.')
+    parser.add_argument('-o', '--output', type=str, default='cards.pdf',
+                        help='Path and filename for the output pdf')
+    parser.add_argument('-s', '--sides', type=int, default=3,
+                        help='The number of sides in the grid (ex: 3 would produce a 3x3 grid of cards).')
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', help='Log actions taken at each step.'
+    )
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+    CardWriter(cards_path=args.cards_path, output=args.output, side_size=args.sides).create_pdf()
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
