@@ -36,6 +36,9 @@ Into a pdf that adds guidelines for cutting the cards and interleaves the front 
 The card images should be 2.5x3.5 (poker card ratio). You can set the number of rows/columns by
 passing the 'sides' argument (defaults to 3x3 on each page).
 
+If there are more front cards than there are back cards the last back card will print to be the
+back to the remaining unmatched front cards.
+
 Example:
 
 `$ cards --cards-path path/to/cards --output cards.py --sides 5`
