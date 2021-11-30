@@ -15,7 +15,7 @@ def grouper(iterable, n, fillvalue=None):
 
 
 class CardWriter:
-    def __init__(self, cards_path: str, output: str = 'cards.pdf', side_size: int = 3):
+    def __init__(self, cards_path: str, output: str, side_size: int):
         self.output = output
         self.width, self.height = fitz.paper_size('letter')
         self.side_size = side_size
@@ -113,19 +113,24 @@ class CardWriter:
 
 
 def main():
-
     parser = argparse.ArgumentParser(
-        description='Turn directories of images into printable pdfs of card sheets.'
+        description='Turn directories of images into printable pdfs of card sheets. Cards should fit the aspect ratio '
+                    'of 2.5x3.5 '
     )
+    parser.add_argument('-c', '--cards-path', type=str,
+                        help='Path to the folder containing the card images.')
+    parser.add_argument('-o', '--output', type=str, default='cards.pdf',
+                        help='Path and filename for the output pdf')
+    parser.add_argument('-s', '--sides', type=int, default=3,
+                        help='The number of sides in the grid (ex: 3 would produce a 3x3 grid of cards).')
     parser.add_argument(
-        '--verbose', action='store_true', help='log actions taken at each step'
+        '-v', '--verbose', action='store_true', help='Log actions taken at each step.'
     )
     args = parser.parse_args()
 
     if args.verbose:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-    # 'static/cards'
-    CardWriter().create_pdf()
+    CardWriter(cards_path=args.cards_path, output=args.output, side_size=args.sides).create_pdf()
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
