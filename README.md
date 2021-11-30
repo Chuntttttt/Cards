@@ -39,6 +39,12 @@ passing the 'sides' argument (defaults to 3x3 on each page).
 If there are more front cards than there are back cards the last back card will print to be the
 back to the remaining unmatched front cards.
 
-Example:
+Example invocation:
 
 `$ cards --cards-path path/to/cards --output cards.py --sides 5`
+
+Example outputs:
+
+![3x3 example](./static/pdf_example.png)
+
+![5x5 example](./static/pdf_example_2.png)
