@@ -2,3 +2,4 @@ cards.pdf
 dist
 
 *.pyc
+/input/high_noon/
