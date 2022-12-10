@@ -6,6 +6,7 @@ import fitz
 from fitz import Point
 from fitz import Rect
 from itertools import zip_longest
+import json
 
 
 # https://stackoverflow.com/a/434411/104527
@@ -23,7 +24,19 @@ class CardWriter:
         self.vertical_padding = self.height * (1 / 44)
         self.card_width = (self.width - (self.horizontal_padding * 2)) / side_size
         self.card_height = (self.height - (self.vertical_padding * 2)) / side_size
+        self.card_count = self.__card_counts(cards_path)
         self.cards_path = cards_path
+
+    def __card_counts(self,cards_path):
+        content = [i for i in os.listdir(cards_path) if i.endswith(".json")]
+        if content:
+            with open(f"{cards_path}/{content[0]}") as file:
+                return {k.lower(): v for k, v in json.load(file).items()}
+        else:
+            return None
+
+
+
 
     def __draw_guides(
         self,
@@ -74,10 +87,16 @@ class CardWriter:
         extensions = ['png', 'jpg', 'jpeg']
         for file in files:
             path = os.path.join(images_path, file)
-            if os.path.isfile(path) and any(
-                extension in file for extension in extensions
-            ):
-                images.append(path)
+            if os.path.isfile(path) and any(extension in file for extension in extensions):
+                basename = os.path.basename(path).split(".")[0]
+                if self.card_count is not None:
+                    if basename in self.card_count:
+                        for _ in range(self.card_count[basename]):
+                            images.append(path)
+                    else:
+                        images.append(path)
+                else:
+                    images.append(path)
         return sorted(images)
 
     def __add_images(self, images: List[List[str]]):
