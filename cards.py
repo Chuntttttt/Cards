@@ -136,6 +136,9 @@ class CardWriter:
 
 def main():
     dirs = os.listdir("input")
+    if not os.path.exists("output") and not os.path.isdir("output"):
+        os.remove("output")
+        os.mkdir("output")
     for dir in dirs:
         CardWriter(cards_path=f"input/{dir}", output=f"output/{dir}.pdf", side_size=3).create_pdf()
 
