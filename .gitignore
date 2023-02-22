@@ -4,3 +4,5 @@ dist
 *.pyc
 /input/high_noon/
 /input/characters/
+/input/
+/output/

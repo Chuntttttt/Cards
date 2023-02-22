@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 from typing import List
-import fitz
+import fitz # pip install PyMuPDF
 from fitz import Point
 from fitz import Rect
 from itertools import zip_longest
@@ -159,7 +159,7 @@ def main():
         os.remove("output")
         os.mkdir("output")
     for dir in dirs:
-        CardWriter(cards_path=f"input/{dir}", output=f"output/{dir}.pdf", side_size=3).create_pdf()
+        CardWriter(cards_path=f"input/{dir}", output=f"output/{dir}.pdf", side_size=4).create_pdf()
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao
