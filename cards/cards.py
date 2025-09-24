@@ -1,11 +1,10 @@
 import argparse
 import logging
 import os
-from typing import List
-import fitz
-from fitz import Point
-from fitz import Rect
 from itertools import zip_longest
+
+import fitz
+from fitz import Point, Rect
 
 
 # https://stackoverflow.com/a/434411/104527
@@ -60,7 +59,7 @@ class CardWriter:
         shape.finish()
         shape.commit()
 
-    def __group_images(self, images: List[str]):
+    def __group_images(self, images: list[str]):
         groupedRows = grouper(images, self.side_size)
         groupedPages = grouper(groupedRows, self.side_size)
         return groupedPages
@@ -80,7 +79,7 @@ class CardWriter:
                 images.append(path)
         return sorted(images)
 
-    def __add_images(self, images: List[List[str]]):
+    def __add_images(self, images: list[list[str]]):
         pdf_page = self.doc.new_page(width=self.width, height=self.height)
         for row_index, row in enumerate(images):
             if row is not None:
@@ -118,7 +117,6 @@ class CardWriter:
                 page_cards.append(reversed(list(row)))
         return cards
 
-
     def create_pdf(self):
         self.doc = fitz.open()
         front_cards = self.__images_from_path(self.cards_path + '/front')
@@ -128,7 +126,9 @@ class CardWriter:
             back_cards.extend([back_cards[-1] for _ in range(difference)])
         front_cards = self.__group_images(front_cards)
         back_cards = self.__align_back_cards(self.__group_images(back_cards))
-        combined = [val for pair in zip(front_cards, back_cards) for val in pair]
+        combined = [
+            val for pair in zip(front_cards, back_cards, strict=False) for val in pair
+        ]
         for image_page in combined:
             self.__add_images(image_page)
         self.doc.save(self.output)
@@ -136,15 +136,33 @@ class CardWriter:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Turn directories of images into printable pdfs of card sheets. Cards should fit the aspect ratio '
-                    'of 2.5x3.5 '
+        description=(
+            'Turn directories of images into printable pdfs of card sheets. '
+            'Cards should fit the aspect ratio of 2.5x3.5'
+        )
     )
-    parser.add_argument('-c', '--cards-path', type=str,
-                        help='Path to the folder containing the card images.')
-    parser.add_argument('-o', '--output', type=str, default='cards.pdf',
-                        help='Path and filename for the output pdf')
-    parser.add_argument('-s', '--sides', type=int, default=3,
-                        help='The number of sides in the grid (ex: 3 would produce a 3x3 grid of cards).')
+    parser.add_argument(
+        '-c',
+        '--cards-path',
+        type=str,
+        help='Path to the folder containing the card images.',
+    )
+    parser.add_argument(
+        '-o',
+        '--output',
+        type=str,
+        default='cards.pdf',
+        help='Path and filename for the output pdf',
+    )
+    parser.add_argument(
+        '-s',
+        '--sides',
+        type=int,
+        default=3,
+        help=(
+            'The number of sides in the grid (ex: 3 would produce a 3x3 grid of cards).'
+        ),
+    )
     parser.add_argument(
         '-v', '--verbose', action='store_true', help='Log actions taken at each step.'
     )
@@ -152,7 +170,9 @@ def main():
 
     if args.verbose:
         logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-    CardWriter(cards_path=args.cards_path, output=args.output, side_size=args.sides).create_pdf()
+    CardWriter(
+        cards_path=args.cards_path, output=args.output, side_size=args.sides
+    ).create_pdf()
 
 
 # i'm not sure how to tell vscode to run __main__.py lmao

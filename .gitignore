@@ -1,4 +1,14 @@
 cards.pdf
 dist
+build/
+*.egg-info/
 
+# Python cache files
 *.pyc
+__pycache__/
+
+# Virtual environments
+.venv/
+venv/
+
+# uv
