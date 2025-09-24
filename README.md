@@ -1,17 +1,37 @@
 # Cards
 
-[![macOS build](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml) [![Windows build](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml) [![Ubuntu](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![macOS build](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml) [![Windows build](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml) [![Ubuntu](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 
-## Requirements
+## Installation
 
-Requires MuPDF, available on macOS via homebrew:
+### Download Pre-built Executables
 
-`$ brew install mupdf swig freetype`
+Download the latest release for your platform from the [Releases](https://github.com/Chuntttttt/Cards/releases) page. No Python or dependencies required!
 
-Adapted the MuPDF sample: https://github.com/pymupdf/PyMuPDF-Utilities/blob/master/examples/all-my-pics-embedded.py
+### Build from Source
 
-Uses [poetry](https://python-poetry.org) for dependency management.
+Requires Python 3.12+ and uses [uv](https://github.com/astral-sh/uv) for dependency management:
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone the repository
+git clone https://github.com/Chuntttttt/Cards.git
+cd Cards
+
+# Install dependencies
+uv sync --extra dev
+
+# Run the application
+uv run python -m cards --help
+
+# Build standalone executable
+uv run pyinstaller --onefile cards/__main__.py --name cards
+```
+
+Adapted from the MuPDF sample: https://github.com/pymupdf/PyMuPDF-Utilities/blob/master/examples/all-my-pics-embedded.py
 
 ## Usage
 
@@ -41,7 +61,7 @@ back to the remaining unmatched front cards.
 
 Example invocation:
 
-`$ cards --cards-path path/to/cards --output cards.py --sides 5`
+`$ cards --cards-path path/to/cards --output cards.pdf --sides 5`
 
 Example outputs:
 
