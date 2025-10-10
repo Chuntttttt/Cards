@@ -12,3 +12,8 @@ __pycache__/
 venv/
 
 # uv
+
+
+# Added by cargo
+
+/target
