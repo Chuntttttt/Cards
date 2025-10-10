@@ -4,69 +4,69 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cards is a Python CLI tool that converts directories of card images into printable PDFs with cutting guidelines. It processes front and back card images (poker card ratio: 2.5x3.5) and arranges them in grids for double-sided printing.
+Cards is a Rust CLI tool that converts directories of card images into printable PDFs with cutting guidelines. It processes front and back card images (poker card ratio: 2.5x3.5) and arranges them in grids for double-sided printing.
 
 ## Development Commands
 
 ### Setup
 ```bash
-# Install dependencies using Poetry
-poetry install
+# Build the project
+cargo build
+
+# Build optimized release binary
+cargo build --release
 ```
 
 ### Running the Application
 ```bash
-# Run the CLI tool directly
-poetry run python -m cards --cards-path path/to/cards --output cards.pdf --sides 3
+# Run with Cargo (debug mode)
+cargo run -- --cards-path path/to/cards --output cards.pdf --sides 3
 
-# Or activate the virtual environment first
-poetry shell
-python -m cards --cards-path path/to/cards --output cards.pdf --sides 3
+# Run release binary directly
+./target/release/cards-rust --cards-path path/to/cards --output cards.pdf --sides 3
 ```
 
 ### Testing
 ```bash
-# Run tests with pytest
-poetry run pytest
+# Run tests (when available)
+cargo test
 
-# Run a specific test
-poetry run pytest tests/test_cards.py::test_version
+# Run with test data
+cargo run -- --cards-path static/cards --output test.pdf --sides 3 --verbose
 ```
 
 ### Code Quality Tools
 ```bash
-# Type checking with mypy
-poetry run mypy cards/
+# Check code formatting
+cargo fmt --check
 
-# Code formatting with black
-poetry run black cards/ tests/
+# Format code
+cargo fmt
 
-# Linting with flake8
-poetry run flake8 cards/ tests/
-```
+# Run linter
+cargo clippy -- -D warnings
 
-### Building Standalone Executable
-```bash
-# Create standalone executable with PyInstaller
-poetry run pyinstaller --onefile cards/cards.py
+# Check for issues without building
+cargo check
 ```
 
 ## Architecture
 
-The application uses PyMuPDF (fitz) for PDF generation. The main entry point is `cards/__main__.py` which calls the `main()` function from `cards/cards.py`.
+The application uses printpdf (MIT licensed) for PDF generation. The main entry point is `src/main.rs`.
 
 Key components:
-- **CardWriter class**: Core PDF generation logic in `cards/cards.py`
+- **CardWriter struct**: Core PDF generation logic
   - Handles image loading from `cards_path/front/` and `cards_path/back/` directories
   - Creates grids of cards with cutting guidelines
   - Aligns back cards correctly for double-sided printing (reversed horizontally)
   - Automatically duplicates the last back card if there are more front cards than back cards
+  - Uses DPI-based scaling to fit images to card dimensions
 
 ## Dependencies
 
-The project requires PyMuPDF which depends on system libraries:
-- macOS: `brew install mupdf swig freetype`
-- Other platforms: See PyMuPDF documentation for installation requirements
+The project uses printpdf for PDF generation with PNG and JPEG support:
+- `printpdf = { version = "0.8", features = ["png", "jpeg"] }`
+- `clap = { version = "4.5", features = ["derive"] }`
 
 ## Expected Directory Structure for Card Images
 
