@@ -1,14 +1,6 @@
-cards.pdf
-dist
-build/
-*.egg-info/
+# Output PDFs
+*.pdf
 
-# Python cache files
-*.pyc
-__pycache__/
-
-# Virtual environments
-.venv/
-venv/
-
-# uv
+# Rust build artifacts
+/target
+Cargo.lock

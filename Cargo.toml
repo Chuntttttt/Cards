@@ -1,0 +1,3 @@
+[workspace]
+members = ["cards-core", "cards-cli"]
+resolver = "2"
