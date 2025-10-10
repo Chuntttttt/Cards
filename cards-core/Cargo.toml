@@ -1,0 +1,8 @@
+[package]
+name = "cards-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+printpdf = { version = "0.8", features = ["png", "jpeg"] }
+log = "0.4"
