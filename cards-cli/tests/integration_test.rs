@@ -140,7 +140,7 @@ fn test_library_api_directly() {
     let cards_path = root.join("static/cards").to_string_lossy().to_string();
     let output_path = root.join("test_output_lib_api.pdf");
 
-    let writer = CardWriter::new(cards_path, 3);
+    let writer = CardWriter::new(cards_path, 3).expect("Valid grid size");
 
     // Clean up any previous test output
     let _ = fs::remove_file(&output_path);
@@ -162,7 +162,7 @@ fn test_library_api_bytes_output() {
     let root = workspace_root();
     let cards_path = root.join("static/cards").to_string_lossy().to_string();
 
-    let writer = CardWriter::new(cards_path, 3);
+    let writer = CardWriter::new(cards_path, 3).expect("Valid grid size");
 
     let result = writer.generate_pdf_bytes();
     assert!(
