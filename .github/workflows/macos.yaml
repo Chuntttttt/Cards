@@ -4,9 +4,7 @@ on:
   workflow_run:
     workflows: ["Code Quality"]
     types: [completed]
-    branches: [rust-rewrite, main]
   push:
-    branches: [rust-rewrite, main]
   pull_request:
 
 jobs:
