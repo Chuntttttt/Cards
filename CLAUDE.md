@@ -44,6 +44,21 @@ cargo clippy -- -D warnings
 cargo check
 ```
 
+### Testing
+```bash
+# Run all tests (unit + integration)
+cargo test
+
+# Run only unit tests
+cargo test --lib
+
+# Run only integration tests
+cargo test --test integration_test
+
+# Run a specific test
+cargo test test_group_images_complete_page
+```
+
 ### Building for Release
 ```bash
 # Create optimized release binary
