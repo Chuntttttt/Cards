@@ -1,10 +1,18 @@
 name: Ubuntu build
 
-on: [push, pull_request]
+on:
+  workflow_run:
+    workflows: ["Code Quality"]
+    types: [completed]
+    branches: [rust-rewrite, main]
+  push:
+    branches: [rust-rewrite, main]
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     steps:
     - name: Check out repo
       uses: actions/checkout@v4
@@ -13,19 +21,9 @@ jobs:
       uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
         toolchain: stable
-        components: rustfmt, clippy
-
-    - name: Check formatting
-      run: cargo fmt --check
-
-    - name: Run clippy
-      run: cargo clippy --workspace -- -D warnings
 
     - name: Build
       run: cargo build --release
-
-    - name: Run tests
-      run: cargo test --workspace
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
