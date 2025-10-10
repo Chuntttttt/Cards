@@ -34,7 +34,6 @@ struct Args {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
 
-    // Initialize logger based on verbose flag
     if args.verbose {
         env_logger::Builder::from_default_env()
             .filter_level(log::LevelFilter::Debug)

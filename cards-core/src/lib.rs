@@ -51,9 +51,8 @@ impl CardWriter {
     /// * `cards_path` - Path to directory containing front/ and back/ subdirectories
     /// * `side_size` - Grid size (e.g., 3 for 3x3 grid)
     pub fn new(cards_path: String, side_size: usize) -> Self {
-        // Letter size in points (72 points per inch): 8.5 x 11 inches
-        let width = 612.0; // 8.5 * 72
-        let height = 792.0; // 11 * 72
+        let width = 612.0; // 8.5" at 72 points per inch
+        let height = 792.0; // 11" at 72 points per inch
 
         let horizontal_padding = width * (1.0 / 17.0);
         let vertical_padding = height * (1.0 / 44.0);
@@ -113,7 +112,6 @@ impl CardWriter {
             }
         }
 
-        // Handle remaining images
         if !current_row.is_empty() {
             while current_row.len() < self.side_size {
                 current_row.push(None);
@@ -153,7 +151,6 @@ impl CardWriter {
         let size = 20.0;
         let mut ops = Vec::new();
 
-        // Helper to create a line
         let line = |x0: f32, y0: f32, x1: f32, y1: f32| Op::DrawLine {
             line: Line {
                 points: vec![
@@ -176,7 +173,6 @@ impl CardWriter {
             },
         };
 
-        // Corner crosshairs
         ops.push(line(x0, y0 - size, x0, y0 + size));
         ops.push(line(x0 - size, y0, x0 + size, y0));
         ops.push(line(x1, y0 - size, x1, y0 + size));
@@ -186,7 +182,6 @@ impl CardWriter {
         ops.push(line(x1, y1 - size, x1, y1 + size));
         ops.push(line(x1 - size, y1, x1 + size, y1));
 
-        // Edge lines based on position
         if y0 < 20.0 {
             ops.push(line(x0, 0.0, x0, y0));
             ops.push(line(x1, 0.0, x1, y0));
@@ -225,7 +220,6 @@ impl CardWriter {
                     let y0 = row_index as f32 * self.card_height + self.vertical_padding;
                     let y1 = y0 + self.card_height;
 
-                    // Load and add image (PDF coordinates are bottom-up, so flip y)
                     let image_bytes = fs::read(image_path)?;
                     let raw_image = RawImage::decode_from_bytes(&image_bytes, &mut Vec::new())
                         .map_err(|e| {
@@ -236,14 +230,9 @@ impl CardWriter {
 
                     let image_id = doc.add_image(&raw_image);
 
-                    // printpdf defaults to 300 DPI for images
-                    // At 300 DPI: 1px = 72/300 = 0.24 pt
-                    // Calculate DPI to make image fit card dimensions
-                    // We want: image_pixels * (72/dpi) = card_points
-                    // So: dpi = image_pixels * 72 / card_points
+                    // Calculate DPI to fit image to card dimensions: dpi = image_pixels * 72 / card_points
                     let dpi_x = raw_image.width as f32 * 72.0 / self.card_width;
                     let dpi_y = raw_image.height as f32 * 72.0 / self.card_height;
-                    // Use the larger DPI to ensure image fits without distortion
                     let dpi = dpi_x.max(dpi_y);
 
                     ops.push(Op::UseXobject {
@@ -260,7 +249,6 @@ impl CardWriter {
 
                     log::debug!("Added image: {image_path} at ({x0}, {y0})");
 
-                    // Draw cutting guides (convert y to PDF coordinates)
                     ops.extend(self.draw_guides(x0, self.height - y1, x1, self.height - y0));
                 }
             }
@@ -293,7 +281,6 @@ impl CardWriter {
         let front_cards = self.images_from_path(&format!("{}/front", self.cards_path))?;
         let mut back_cards = self.images_from_path(&format!("{}/back", self.cards_path))?;
 
-        // Duplicate last back card if needed
         let difference = front_cards.len() as i32 - back_cards.len() as i32;
         if difference > 0 && !back_cards.is_empty() {
             let last_back = back_cards.last().unwrap().clone();
@@ -307,7 +294,6 @@ impl CardWriter {
 
         let mut pages = Vec::new();
 
-        // Interleave front and back pages
         for (front_page, back_page) in front_pages.iter().zip(back_pages.iter()) {
             let front_ops = self.create_page_ops(&mut doc, front_page)?;
             pages.push(PdfPage::new(
@@ -324,7 +310,6 @@ impl CardWriter {
             ));
         }
 
-        // Handle remaining front pages if any
         if front_pages.len() > back_pages.len() {
             for front_page in front_pages.iter().skip(back_pages.len()) {
                 let front_ops = self.create_page_ops(&mut doc, front_page)?;
