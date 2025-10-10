@@ -24,15 +24,9 @@ cargo run -- --cards-path path/to/cards --output cards.pdf --sides 3
 
 # Run release binary directly
 ./target/release/cards-rust --cards-path path/to/cards --output cards.pdf --sides 3
-```
 
-### Testing
-```bash
-# Run tests (when available)
-cargo test
-
-# Run with test data
-cargo run -- --cards-path static/cards --output test.pdf --sides 3 --verbose
+# Run with verbose output
+cargo run -- --cards-path path/to/cards --output cards.pdf --sides 3 --verbose
 ```
 
 ### Code Quality Tools
@@ -50,23 +44,41 @@ cargo clippy -- -D warnings
 cargo check
 ```
 
+### Building for Release
+```bash
+# Create optimized release binary
+cargo build --release
+
+# Binary will be at: ./target/release/cards-rust
+```
+
 ## Architecture
 
-The application uses printpdf (MIT licensed) for PDF generation. The main entry point is `src/main.rs`.
+Single-file architecture: all code is in `src/main.rs` (305 lines).
 
-Key components:
-- **CardWriter struct**: Core PDF generation logic
-  - Handles image loading from `cards_path/front/` and `cards_path/back/` directories
-  - Creates grids of cards with cutting guidelines
-  - Aligns back cards correctly for double-sided printing (reversed horizontally)
-  - Automatically duplicates the last back card if there are more front cards than back cards
-  - Uses DPI-based scaling to fit images to card dimensions
+### CardWriter struct
+The core PDF generation logic handles:
+- Image loading from `cards_path/front/` and `cards_path/back/` directories
+- Grid layout on letter-sized pages (8.5×11 inches = 612×792 points)
+- Cutting guidelines with corner crosshairs and edge lines
+- Back card alignment for double-sided printing (rows reversed horizontally)
+- Auto-duplication of the last back card if there are more front cards than back cards
+- DPI-based scaling to fit images to card dimensions
+
+### Coordinate System
+PDF uses bottom-up coordinates (origin at bottom-left), so y-coordinates are flipped when placing images and drawing guides. Image placement uses `self.height - y1` to convert from top-down layout logic to PDF coordinates.
+
+### Image Processing
+1. Images are loaded from `front/` and `back/` subdirectories
+2. Files are sorted alphabetically and filtered by extension (png, jpg, jpeg)
+3. Images are grouped into pages based on `side_size` (e.g., 3×3 grid)
+4. Back pages have rows reversed to align with fronts for double-sided printing
+5. Front and back pages are interleaved in the final PDF
 
 ## Dependencies
 
-The project uses printpdf for PDF generation with PNG and JPEG support:
-- `printpdf = { version = "0.8", features = ["png", "jpeg"] }`
-- `clap = { version = "4.5", features = ["derive"] }`
+- `printpdf = { version = "0.8", features = ["png", "jpeg"] }` - PDF generation
+- `clap = { version = "4.5", features = ["derive"] }` - CLI argument parsing
 
 ## Expected Directory Structure for Card Images
 
@@ -83,3 +95,10 @@ cards/
 ```
 
 Images are sorted alphabetically and should be in PNG, JPG, or JPEG format.
+
+## CI/CD
+
+GitHub Actions workflows build and test on:
+- macOS (`.github/workflows/macos.yaml`)
+- Windows (`.github/workflows/windows.yaml`)
+- Ubuntu (`.github/workflows/ubuntu.yaml`)
