@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: ["Code Quality"]
     types: [completed]
-  push:
   pull_request:
 
 jobs:
@@ -20,11 +19,20 @@ jobs:
       with:
         toolchain: stable
 
-    - name: Build
-      run: cargo build --release
+    - name: Build CLI
+      run: cargo build --release -p cards-cli
 
-    - name: Upload artifact
+    - name: Build GUI
+      run: cargo build --release -p cards-gui
+
+    - name: Upload CLI artifact
       uses: actions/upload-artifact@v4
       with:
-        name: cards-windows
+        name: cards-cli-windows
         path: target/release/cards.exe
+
+    - name: Upload GUI artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cards-gui-windows
+        path: target/release/cards-gui.exe

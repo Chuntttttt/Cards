@@ -10,6 +10,7 @@ Cards is a Rust workspace containing a library and CLI tool for converting direc
 
 - **cards-core**: Library crate containing core PDF generation logic
 - **cards-cli**: Binary crate providing the CLI interface
+- **cards-gui**: GUI application providing cross-platform graphical interface
 
 ## Development Commands
 
@@ -21,13 +22,17 @@ cargo build
 # Build specific crate
 cargo build -p cards-core
 cargo build -p cards-cli
+cargo build -p cards-gui
 
-# Build optimized release binary
+# Build optimized release binaries
 cargo build --release
-# Binary will be at: ./target/release/cards
+# CLI binary: ./target/release/cards
+# GUI binary: ./target/release/cards-gui
 ```
 
 ### Running the Application
+
+**CLI:**
 ```bash
 # Run with Cargo (debug mode)
 cargo run -p cards-cli -- --cards-path path/to/cards --output cards.pdf --sides 3
@@ -38,6 +43,26 @@ cargo run -p cards-cli -- --cards-path path/to/cards --output cards.pdf --sides 
 # Run with verbose output (enables debug logging)
 cargo run -p cards-cli -- --cards-path path/to/cards --output cards.pdf --sides 3 --verbose
 ```
+
+**GUI:**
+
+```bash
+# Run with Cargo
+cargo run --release -p cards-gui
+
+# Or run binary directly (no setup required)
+./target/release/cards-gui
+```
+
+The GUI provides:
+- Folder selection dialog for cards directory
+- Grid size slider (1-20)
+- Output file selection with save dialog
+- Card count display with duplication warnings
+- Page count calculation
+- Generate PDF button
+- Open PDF button after successful generation
+- Error and success messages
 
 ### Code Quality Tools
 ```bash
@@ -116,6 +141,24 @@ Provides CLI interface using:
 
 The CLI configures logging based on `--verbose` flag and delegates to the library.
 
+### cards-gui (GUI Binary)
+Location: `cards-gui/src/main.rs`
+
+Cross-platform GUI application using:
+- `eframe` (egui) for native GUI rendering
+- `rfd` for native file/folder dialogs
+- `opener` for opening generated PDFs
+- `cards-core` for PDF generation
+
+Features:
+- Card counting with duplication warnings
+- Page count calculation
+- Native file dialogs for folder and file selection
+- Open generated PDF in system viewer
+- Success/error message display
+
+**No external dependencies** - The GUI is a single self-contained binary suitable for direct distribution.
+
 ### Coordinate System
 PDF uses bottom-up coordinates (origin at bottom-left), so y-coordinates are flipped when placing images and drawing guides. Image placement uses `self.height - y1` to convert from top-down layout logic to PDF coordinates.
 
@@ -137,6 +180,12 @@ PDF uses bottom-up coordinates (origin at bottom-left), so y-coordinates are fli
 - `clap = { version = "4.5", features = ["derive"] }` - CLI argument parsing
 - `env_logger = "0.11"` - Logging implementation
 - `log = "0.4"` - Logging facade
+
+### cards-gui
+- `cards-core = { path = "../cards-core" }` - Core library
+- `eframe = "0.29"` - egui framework for native GUI
+- `rfd = "0.15"` - Native file dialogs
+- `opener = "0.7"` - Cross-platform file opener
 
 ## Expected Directory Structure for Card Images
 

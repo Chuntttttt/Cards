@@ -1,0 +1,10 @@
+[package]
+name = "cards-gui"
+version = "1.0.0"
+edition = "2024"
+
+[dependencies]
+cards-core = { path = "../cards-core" }
+eframe = "0.29"
+rfd = "0.15"
+opener = "0.7"
