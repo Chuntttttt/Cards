@@ -4,6 +4,7 @@
 [![macOS build](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/macos.yaml)
 [![Ubuntu build](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/ubuntu.yaml)
 [![Windows build](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml)
+[![Deploy WASM](https://github.com/Chuntttttt/Cards/actions/workflows/wasm-deploy.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/wasm-deploy.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A Rust workspace for converting card images into printable PDFs with cutting guidelines. Available as a web app, GUI application, CLI tool, and library. Written using MIT-licensed [printpdf](https://github.com/fschutt/printpdf) for PDF generation.
@@ -25,7 +26,7 @@ A Rust workspace for converting card images into printable PDFs with cutting gui
 ### Web App
 
 Try the web version (no installation required):
-**[https://chuntttttt.github.io/Cards/](https://chuntttttt.github.io/Cards/)** *(Coming Soon)*
+**[https://chuntttttt.github.io/Cards/](https://chuntttttt.github.io/Cards/)**
 
 Upload a ZIP file containing your cards and generate PDFs entirely in your browser!
 
