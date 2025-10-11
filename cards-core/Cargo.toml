@@ -2,6 +2,7 @@
 name = "cards-core"
 version = "1.0.0"
 edition = "2024"
+license = "MIT"
 
 [dependencies]
 printpdf = { version = "0.8", features = ["png", "jpeg"] }
