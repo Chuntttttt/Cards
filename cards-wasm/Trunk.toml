@@ -1,0 +1,15 @@
+[[hooks]]
+stage = "build"
+command = "cargo"
+command_arguments = ["build", "--release", "--target=wasm32-unknown-unknown"]
+
+[build]
+target = "index.html"
+dist = "dist"
+
+[watch]
+ignore = ["dist"]
+
+[serve]
+address = "127.0.0.1"
+port = 8080

@@ -6,18 +6,28 @@
 [![Windows build](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml/badge.svg)](https://github.com/Chuntttttt/Cards/actions/workflows/windows.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Rust library and CLI tool that converts directories of card images into printable PDFs with cutting guidelines. Written using MIT-licensed [printpdf](https://github.com/fschutt/printpdf) for PDF generation.
+A Rust workspace for converting card images into printable PDFs with cutting guidelines. Available as a web app, GUI application, CLI tool, and library. Written using MIT-licensed [printpdf](https://github.com/fschutt/printpdf) for PDF generation.
 
 ## Features
 
-- 📦 **Library and CLI**: Use as a Rust library or standalone command-line tool
-- 🎴 **Card layouts**: Configurable grid sizes (3×3, 5×5, etc.)
+- 🌐 **Web App**: Browser-based WASM version (no installation)
+- 🖥️ **Desktop GUI**: Native cross-platform application
+- 💻 **CLI Tool**: Command-line interface for automation
+- 📚 **Library**: Embed in your own Rust projects
+- 🎴 **Card layouts**: Configurable grid sizes (1×1 to 20×20)
 - ✂️ **Cutting guides**: Automatic crosshairs and edge lines for precise cutting
 - 🔄 **Double-sided printing**: Back cards automatically aligned for flipping
 - 🖼️ **Multiple formats**: Supports PNG, JPG, and JPEG images
 - 📄 **Letter size**: Generates standard 8.5×11 inch PDFs
 
 ## Installation
+
+### Web App
+
+Try the web version (no installation required):
+**[https://chuntttttt.github.io/Cards/](https://chuntttttt.github.io/Cards/)** *(Coming Soon)*
+
+Upload a ZIP file containing your cards and generate PDFs entirely in your browser!
 
 ### CLI Tool
 
@@ -34,12 +44,24 @@ Requires Rust 1.70+ and Cargo:
 git clone https://github.com/Chuntttttt/Cards.git
 cd Cards
 
-# Build release binary
-cargo build --release
+# Build CLI and GUI (native applications)
+cargo build --release --workspace
 
-# The executable will be at ./target/release/cards
-# Or run directly with:
-cargo run --release -p cards-cli -- --help
+# Build CLI only
+cd cards-cli && cargo build --release
+
+# Build GUI only
+cd cards-gui && cargo build --release
+
+# Build WASM webapp (requires wasm32 target and trunk)
+rustup target add wasm32-unknown-unknown
+cargo install trunk
+cd cards-wasm && trunk build --release
+
+# Executables will be at:
+# - CLI: ./target/release/cards
+# - GUI: ./target/release/cards-gui
+# - WASM: ./cards-wasm/dist/ (HTML + WASM bundle)
 ```
 
 ### Library
