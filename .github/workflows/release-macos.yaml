@@ -1,0 +1,60 @@
+name: macOS Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+
+    - name: Build CLI
+      run: cargo build --release -p cards-cli
+
+    - name: Build GUI
+      run: cargo build --release -p cards-gui
+
+    - name: Create release directory
+      run: mkdir -p release
+
+    - name: Package CLI
+      run: |
+        cp target/release/cards release/cards-cli-macos
+        chmod +x release/cards-cli-macos
+
+    - name: Package GUI
+      run: |
+        cp target/release/cards-gui release/cards-gui-macos
+        chmod +x release/cards-gui-macos
+
+    - name: Upload CLI artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cards-cli-macos
+        path: release/cards-cli-macos
+
+    - name: Upload GUI artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cards-gui-macos
+        path: release/cards-gui-macos
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          release/cards-cli-macos
+          release/cards-gui-macos
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

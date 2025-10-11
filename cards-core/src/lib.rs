@@ -145,12 +145,11 @@ impl CardWriter {
             match entry {
                 Ok(entry) => {
                     let path = entry.path();
-                    if path.is_file() {
-                        if let Some(ext) = path.extension() {
-                            if extensions.contains(&ext.to_str().unwrap_or("")) {
-                                images.push(path.to_string_lossy().to_string());
-                            }
-                        }
+                    if path.is_file()
+                        && let Some(ext) = path.extension()
+                        && extensions.contains(&ext.to_str().unwrap_or(""))
+                    {
+                        images.push(path.to_string_lossy().to_string());
                     }
                 }
                 Err(e) => {
@@ -456,13 +455,13 @@ impl CardWriter {
         );
 
         let difference = front_cards.len() as i32 - back_cards.len() as i32;
-        if difference > 0 {
-            if let Some(last_back) = back_cards.last() {
-                log::debug!("Duplicating last back card {difference} times");
-                let last_back = last_back.clone();
-                for _ in 0..difference {
-                    back_cards.push(last_back.clone());
-                }
+        if difference > 0
+            && let Some(last_back) = back_cards.last()
+        {
+            log::debug!("Duplicating last back card {difference} times");
+            let last_back = last_back.clone();
+            for _ in 0..difference {
+                back_cards.push(last_back.clone());
             }
         }
 
