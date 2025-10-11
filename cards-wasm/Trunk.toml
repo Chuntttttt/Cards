@@ -6,6 +6,7 @@ command_arguments = ["build", "--release", "--target=wasm32-unknown-unknown"]
 [build]
 target = "index.html"
 dist = "dist"
+public_url = "/Cards/"
 
 [watch]
 ignore = ["dist"]
