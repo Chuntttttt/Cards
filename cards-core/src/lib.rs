@@ -380,11 +380,23 @@ impl CardWriter {
     ) -> Result<Vec<Op>, CardsError> {
         let mut ops = Vec::new();
 
+        // Draw complete grid first, regardless of whether cards fill all positions
+        let side_size = images.len();
+        ops.extend(Self::draw_complete_grid_static(
+            side_size,
+            card_width,
+            card_height,
+            horizontal_padding,
+            vertical_padding,
+            width,
+            height,
+        ));
+
+        // Then place cards
         for (row_index, row) in images.iter().enumerate() {
             for (image_index, image_opt) in row.iter().enumerate() {
                 if let Some(image) = image_opt {
                     let x0 = image_index as f32 * card_width + horizontal_padding;
-                    let x1 = x0 + card_width;
                     let y0 = row_index as f32 * card_height + vertical_padding;
                     let y1 = y0 + card_height;
 
@@ -415,15 +427,6 @@ impl CardWriter {
                     });
 
                     log::debug!("Added image: {} at ({x0}, {y0})", image.name);
-
-                    ops.extend(Self::draw_guides_static(
-                        x0,
-                        height - y1,
-                        x1,
-                        height - y0,
-                        width,
-                        height,
-                    ));
                 }
             }
         }
@@ -431,7 +434,15 @@ impl CardWriter {
         Ok(ops)
     }
 
-    fn draw_guides_static(x0: f32, y0: f32, x1: f32, y1: f32, width: f32, height: f32) -> Vec<Op> {
+    fn draw_complete_grid_static(
+        side_size: usize,
+        card_width: f32,
+        card_height: f32,
+        horizontal_padding: f32,
+        vertical_padding: f32,
+        width: f32,
+        height: f32,
+    ) -> Vec<Op> {
         let mut ops = Vec::new();
 
         let line = |x0: f32, y0: f32, x1: f32, y1: f32| Op::DrawLine {
@@ -456,33 +467,34 @@ impl CardWriter {
             },
         };
 
-        ops.push(line(x0, y0 - GUIDE_LINE_SIZE, x0, y0 + GUIDE_LINE_SIZE));
-        ops.push(line(x0 - GUIDE_LINE_SIZE, y0, x0 + GUIDE_LINE_SIZE, y0));
-        ops.push(line(x1, y0 - GUIDE_LINE_SIZE, x1, y0 + GUIDE_LINE_SIZE));
-        ops.push(line(x1 - GUIDE_LINE_SIZE, y0, x1 + GUIDE_LINE_SIZE, y0));
-        ops.push(line(x0, y1 - GUIDE_LINE_SIZE, x0, y1 + GUIDE_LINE_SIZE));
-        ops.push(line(x0 - GUIDE_LINE_SIZE, y1, x0 + GUIDE_LINE_SIZE, y1));
-        ops.push(line(x1, y1 - GUIDE_LINE_SIZE, x1, y1 + GUIDE_LINE_SIZE));
-        ops.push(line(x1 - GUIDE_LINE_SIZE, y1, x1 + GUIDE_LINE_SIZE, y1));
+        // Draw vertical lines (columns)
+        for col in 0..=side_size {
+            let x = col as f32 * card_width + horizontal_padding;
 
-        if y0 < 20.0 {
-            ops.push(line(x0, 0.0, x0, y0));
-            ops.push(line(x1, 0.0, x1, y0));
+            // Draw vertical line from top edge to bottom edge of page
+            ops.push(line(x, 0.0, x, height));
+
+            // Draw crosshairs at each intersection
+            for row in 0..=side_size {
+                let y = row as f32 * card_height + vertical_padding;
+                let pdf_y = height - y;
+
+                // Horizontal crosshair
+                ops.push(line(x - GUIDE_LINE_SIZE, pdf_y, x + GUIDE_LINE_SIZE, pdf_y));
+            }
         }
 
-        if y0 > 500.0 {
-            ops.push(line(x0, height, x0, y1));
-            ops.push(line(x1, height, x1, y1));
-        }
+        // Draw horizontal lines (rows)
+        for row in 0..=side_size {
+            let y = row as f32 * card_height + vertical_padding;
 
-        if x0 < 40.0 {
-            ops.push(line(0.0, y0, x0, y0));
-            ops.push(line(0.0, y1, x0, y1));
-        }
+            // Convert to PDF coordinates (bottom-up)
+            let pdf_y = height - y;
 
-        if x0 > 390.0 {
-            ops.push(line(x1, y0, width, y0));
-            ops.push(line(x1, y1, width, y1));
+            // Draw horizontal line from left edge to right edge of page
+            ops.push(line(0.0, pdf_y, width, pdf_y));
+
+            // Vertical crosshairs are already drawn by the vertical lines loop
         }
 
         ops
